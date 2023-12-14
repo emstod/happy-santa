@@ -56,10 +56,6 @@ async function loadGifts() {
   // Add the htmx
   let gifts = document.getElementsByClassName('giftDeleteBtn')
   for (let i = 0; i < gifts.length; i++) {
-    // let giftId = gifts[i].parentElement.getAttribute('giftId')
-    // gifts[i].setAttribute('hx-delete', `/gift/${giftId}`)
-    // gifts[i].setAttribute('hx-trigger', 'click')
-    // gifts[i].setAttribute('hx-swap', 'none')
     gifts[i].addEventListener('click', deleteGift)
   }
   let purchaseBtns = document.getElementsByClassName('giftPurchaseBtn')
@@ -135,11 +131,13 @@ function toggleAddBtn(event) {
   }
 }
 
+// Clear add recipient input after creating a new recipient
 function clearAddInput() {
   document.getElementById('recipientName').value = ''
   document.getElementById('addRecipient').disabled = true;
 }
 
+// Only enable add gift button when form is filled in
 function toggleAddGiftBtn() {
   const addGiftBtn = document.getElementById('addGift')
   const itemName = document.getElementById('itemName')

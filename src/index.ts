@@ -11,8 +11,11 @@ const client = createClient({
 })
 
 async function getPeople() {
+  // Get a list of all people
   try {
     const response = await client.execute("select * from person");
+
+    // Return HTML to work with HTMX
     let returnHTML = '<option value="">Select</option>';
     response.rows.forEach((row) => {
       returnHTML += `<option value="${row.id}">${row.name}</option>`
@@ -24,6 +27,7 @@ async function getPeople() {
 }
 
 async function getPerson({ params: { id } }) {
+  // Get a single person
   try {
     const response = await client.execute({
       sql: "select * from person where id = ?",
@@ -36,6 +40,7 @@ async function getPerson({ params: { id } }) {
 }
 
 async function addPerson({ body }) {
+  // Add a new person
   try {
     const id = uuidv4();
     const budget = 0;
@@ -44,6 +49,8 @@ async function addPerson({ body }) {
       args: [id, body.recipientName, budget]
     });
     response = await client.execute("select * from person");
+    
+    // Return HTML to work with HTMX
     let returnHTML = '<option value="">Select</option>';
     response.rows.forEach((row) => {
       returnHTML += `<option value="${row.id}">${row.name}</option>`
@@ -61,6 +68,7 @@ async function addPerson({ body }) {
 }
 
 async function getPersonGifts({ params: { personId } }) {
+  // Get the gifts for one person
   try {
     const response = await client.execute({
       sql: "select id, item_name, price, purchased from gift where person_id = ?",
@@ -73,20 +81,12 @@ async function getPersonGifts({ params: { personId } }) {
 }
 
 async function deleteGift({ params: { giftId } }) {
+  // Delete a gift
   try {
     const response = await client.execute({
       sql: "delete from gift where id = ?",
       args: [giftId]
     });
-    // return new Response(
-    //   JSON.stringify(response),
-    //   {
-    //     headers: {
-    //       'Content-Type': 'application.json',
-    //       'HX-Trigger': 'reloadGifts'
-    //     }
-    //   }
-    // )
     return response;
   } catch (e) {
     console.error(e)
@@ -94,6 +94,7 @@ async function deleteGift({ params: { giftId } }) {
 }
 
 async function addGift({ body }) {
+  // Add a new gift
   try {
     const id = uuidv4();
     const purchased = body.purchased ? 1 : 0;
@@ -101,6 +102,8 @@ async function addGift({ body }) {
       sql: "insert into gift values (?, ?, ?, ?, ?)",
       args: [id, body.personId, body.itemName, body.price, purchased]
     });
+    
+    // Response that triggers event using HTMX
     return new Response(
       JSON.stringify(response),
       {
@@ -110,7 +113,6 @@ async function addGift({ body }) {
         }
       }
     );
-    // return response;
   } catch (e) {
     console.error(e);
   }
@@ -118,6 +120,7 @@ async function addGift({ body }) {
 }
 
 async function purchaseGift({ params: { giftId } }) {
+  // Update a gift (only purchased column can be updated currently)
   try {
     const response = await client.execute({
       sql: "update gift set purchased = 1 where id = ?",
@@ -130,11 +133,13 @@ async function purchaseGift({ params: { giftId } }) {
 }
 
 async function editBudget({ body }) {
+  // Update person (only budget can be updated currently)
   try {
     let response = await client.execute({
       sql: "update person set budget = ? where id = ?",
       args: [body.budget, body.id]
     })
+    // Return the new budget
     response = await client.execute({
       sql: "select budget from person where id = ?",
       args: [body.id]
