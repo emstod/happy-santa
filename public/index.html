@@ -17,12 +17,15 @@
       <label for="person" class="p-2 text-stone-700">Select a recipient</label>
       <select name="person"
               id="person"
-              class="p-2 rounded bg-stone-50 text-stone-700">
+              class="p-2 rounded bg-stone-50 text-stone-700"
+              hx-get="/person"
+              hx-trigger="load">
         <option value="" selected>Select</option>
       </select>
       <div class="flex flex-row my-4 gap-2">
         <input type="text"
                id="recipientName"
+               name="recipientName"
                class="p-2
                       bg-stone-50
                       rounded
@@ -34,7 +37,11 @@
                       bg-stone-200
                       rounded
                       text-stone-700
-                      disabled:text-stone-50" disabled>Add Recipient</button>
+                      disabled:text-stone-50"
+                hx-post="/person"
+                hx-trigger="click"
+                hx-include="#recipientName"
+                hx-target="#person" disabled>Add Recipient</button>
       </div>
     </div>
     <div id="personInfo" class="flex flex-col hidden">
@@ -101,51 +108,56 @@
                   text-white">
         <h2 class="font-bold">Add Gift</h2>
       </div>
-      <div class="flex
-                  flex-col
-                  mb-4
-                  bg-stone-400
-                  rounded-b-lg
-                  p-2
-                  gap-2
-                  text-white">
-        <input type="text"
-                name="itemName"
-                id="itemName"
-                class="p-2
-                      bg-stone-50
-                      text-stone-700
-                      rounded"
-                placeholder="Gift name">
-        <input type="number"
-                name="price"
-                id="price"
-                class="p-2
-                      bg-stone-50
-                      text-stone-700
-                      rounded"
-                placeholder="$">
-        <div class="flex flex-row gap-2">
-          <input type="checkbox"
-                name="purchased"
-                id="purchased"
-                class="p-2
-                      bg-stone-50
-                      text-2xl
-                      rounded"
-                placeholder="Price">
-          <label for="purchased">Purchased</label>
+      <form hx-post="/gift" hx-swap="none">
+        <div class="flex
+                    flex-col
+                    mb-4
+                    bg-stone-400
+                    rounded-b-lg
+                    p-2
+                    gap-2
+                    text-white">
+          <input type="text" name="personId" id="personId" class="hidden">
+          <input type="text"
+                  name="itemName"
+                  id="itemName"
+                  class="p-2
+                        bg-stone-50
+                        text-stone-700
+                        rounded"
+                  placeholder="Gift name">
+          <input type="number"
+                  name="price"
+                  id="price"
+                  class="p-2
+                        bg-stone-50
+                        text-stone-700
+                        rounded"
+                  placeholder="$">
+          <div class="flex flex-row gap-2">
+            <input type="checkbox"
+                  name="purchased"
+                  id="purchased"
+                  class="p-2
+                        bg-stone-50
+                        text-2xl
+                        rounded"
+                  placeholder="Price">
+            <label for="purchased">Purchased</label>
+          </div>
+          <button type="submit"
+                  id="addGift"
+                  class="p-2
+                        bg-stone-200
+                        text-stone-700
+                        font-bold
+                        rounded
+                        disabled:text-stone-50"
+                  disabled>
+            Add
+          </button>
         </div>
-        <button type="button"
-                id="addGift"
-                class="p-2
-                      bg-stone-200
-                      text-stone-700
-                      font-bold
-                      rounded">
-          Add
-        </button>
-      </div>
+      </form>
     </div>
   </div>
   <script src="public/main.js"></script>

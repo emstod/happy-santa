@@ -1,27 +1,3 @@
-(async () => {
-  let personSelect = document.getElementById('person')
-
-  let response = await axios.get('/person')
-  let data = response.data
-
-  data.forEach((person) => {
-    personSelect.innerHTML += `<option value="${person.id}">${person.name}</option>`
-  })
-})();
-
-// Function to populate the dropdown list of recipients
-async function getRecipients() {
-  let personSelect = document.getElementById('person')
-  personSelect.innerHTML = ''
-
-  let response = await axios.get('/person')
-  let data = response.data
-
-  data.forEach((person) => {
-    personSelect.innerHTML += `<option value="${person.id}">${person.name}</option>`
-  })
-}
-
 // Function to switch which recipient is displayed
 async function changeRecipient(event) {
   if (event.target.value !== '') {
@@ -34,6 +10,7 @@ async function changeRecipient(event) {
     document.getElementById('personName').innerText = data.name
     document.getElementById('budgetData').innerText = data.budget
     document.getElementById('id').value = data.id
+    document.getElementById('personId').value = data.id
 
     await loadGifts(event.target.value)
   } else {
@@ -42,7 +19,14 @@ async function changeRecipient(event) {
 }
 
 // Function to load gift information
-async function loadGifts(personId) {
+async function loadGifts() {
+  const personId = document.getElementById('id').value
+
+  // Reset add gift form
+  document.getElementById('itemName').value = ''
+  document.getElementById('price').value = ''
+  document.getElementById('purchased').checked = false
+
   // Get the gift information from the database
   result = await axios.get(`/gift/${personId}`)
   data = result.data
@@ -69,9 +53,13 @@ async function loadGifts(personId) {
     }
   })
 
-  // Add the event listeners
+  // Add the htmx
   let gifts = document.getElementsByClassName('giftDeleteBtn')
   for (let i = 0; i < gifts.length; i++) {
+    // let giftId = gifts[i].parentElement.getAttribute('giftId')
+    // gifts[i].setAttribute('hx-delete', `/gift/${giftId}`)
+    // gifts[i].setAttribute('hx-trigger', 'click')
+    // gifts[i].setAttribute('hx-swap', 'none')
     gifts[i].addEventListener('click', deleteGift)
   }
   let purchaseBtns = document.getElementsByClassName('giftPurchaseBtn')
@@ -83,25 +71,12 @@ async function loadGifts(personId) {
   document.getElementById('spentData').innerText = amountSpent
 }
 
-// Function to add a new recipient
-async function addRecipient() {
-  let recipientName = document.getElementById('recipientName')
-  const result = await axios.post('/person', {
-    name: recipientName.value,
-    budget: 0
-  })
-  recipientName.value = ''
-  document.getElementById('addRecipient').disabled = true;
-  await getRecipients()
-}
-
 // Function to delete a gift
 async function deleteGift(event) {
   let giftId = event.target.parentElement.getAttribute('giftId')
 
   const result = await axios.delete(`/gift/${giftId}`)
-  let personId = document.getElementById('person').value
-  await loadGifts(personId)
+  await loadGifts()
 }
 
 // Function to mark a gift purchased
@@ -109,8 +84,7 @@ async function purchaseGift(event) {
   let giftId = event.target.parentElement.getAttribute('giftId')
 
   const result = await axios.put(`/gift/${giftId}`)
-  let personId = document.getElementById('person').value
-  await loadGifts(personId)
+  await loadGifts()
 }
 
 // Function to add a gift
@@ -161,10 +135,28 @@ function toggleAddBtn(event) {
   }
 }
 
+function clearAddInput() {
+  document.getElementById('recipientName').value = ''
+  document.getElementById('addRecipient').disabled = true;
+}
+
+function toggleAddGiftBtn() {
+  const addGiftBtn = document.getElementById('addGift')
+  const itemName = document.getElementById('itemName')
+  const price = document.getElementById('price')
+  if (itemName.value != '' && price.value != '') {
+    addGiftBtn.disabled = false
+  } else {
+    addGiftBtn.disabled = true
+  }
+}
+
 // Add event listeners
 document.getElementById('person').addEventListener('change', changeRecipient)
-document.getElementById('addRecipient').addEventListener('click', addRecipient)
-document.getElementById('addGift').addEventListener('click', addGift)
 document.getElementById('editBudgetBtn').addEventListener('click', editBudget)
 document.getElementById('submitBudgetBtn').addEventListener('click', showBudget)
 document.getElementById('recipientName').addEventListener('input', toggleAddBtn)
+document.getElementById('itemName').addEventListener('input', toggleAddGiftBtn)
+document.getElementById('price').addEventListener('input', toggleAddGiftBtn)
+document.body.addEventListener('returnPersonEvent', clearAddInput)
+document.body.addEventListener('reloadGifts', loadGifts)

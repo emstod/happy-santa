@@ -13,7 +13,11 @@ const client = createClient({
 async function getPeople() {
   try {
     const response = await client.execute("select * from person");
-    return response.rows;
+    let returnHTML = '<option value="">Select</option>';
+    response.rows.forEach((row) => {
+      returnHTML += `<option value="${row.id}">${row.name}</option>`
+    });
+    return returnHTML;
   } catch (e) {
     console.error(e);
   }
@@ -34,12 +38,22 @@ async function getPerson({ params: { id } }) {
 async function addPerson({ body }) {
   try {
     const id = uuidv4();
-    const budget = body.budget || 0;
-    const response = await client.execute({
+    const budget = 0;
+    let response = await client.execute({
       sql: "insert into person values (?, ?, ?)",
-      args: [id, body.name, budget]
+      args: [id, body.recipientName, budget]
     });
-    return response;
+    response = await client.execute("select * from person");
+    let returnHTML = '<option value="">Select</option>';
+    response.rows.forEach((row) => {
+      returnHTML += `<option value="${row.id}">${row.name}</option>`
+    });
+    return new Response(returnHTML, {
+      headers: {
+        'Content-Type': 'text/html',
+        'HX-Trigger': 'returnPersonEvent'
+      }
+    });
   } catch (e) {
     console.error(e);
   }
@@ -64,6 +78,15 @@ async function deleteGift({ params: { giftId } }) {
       sql: "delete from gift where id = ?",
       args: [giftId]
     });
+    // return new Response(
+    //   JSON.stringify(response),
+    //   {
+    //     headers: {
+    //       'Content-Type': 'application.json',
+    //       'HX-Trigger': 'reloadGifts'
+    //     }
+    //   }
+    // )
     return response;
   } catch (e) {
     console.error(e)
@@ -78,7 +101,16 @@ async function addGift({ body }) {
       sql: "insert into gift values (?, ?, ?, ?, ?)",
       args: [id, body.personId, body.itemName, body.price, purchased]
     });
-    return response;
+    return new Response(
+      JSON.stringify(response),
+      {
+        headers: {
+          'Content-Type': 'application.json',
+          'HX-Trigger': 'reloadGifts'
+        }
+      }
+    );
+    // return response;
   } catch (e) {
     console.error(e);
   }
@@ -126,7 +158,7 @@ const app = new Elysia()
   .put('/gift/:giftId', purchaseGift)
   .get('/ping', () => 'pong')
   .post('/ping', () => 'pong')
-  .listen(8000);
+  .listen(3000);
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
