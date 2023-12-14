@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Santa</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.9"></script>
+</head>
+<body class="bg-stone-100">
+  <div class="container mx-auto p-4">
+    <div class="flex flex-row mb-4">
+      <h1 class="text-6xl font-extralight text-red-700">Happy Santa</h1>
+    </div>
+    <div class="flex flex-col">
+      <label for="person" class="p-2 text-stone-700">Select a recipient</label>
+      <select name="person"
+              id="person"
+              class="p-2 rounded bg-stone-50 text-stone-700">
+        <option value="" selected>Select</option>
+      </select>
+      <div class="flex flex-row my-4 gap-2">
+        <input type="text"
+               id="recipientName"
+               class="p-2
+                      bg-stone-50
+                      rounded
+                      text-stone-700"
+               placeholder="Recipient name">
+        <button type="button"
+                id="addRecipient"
+                class="p-2
+                      bg-stone-200
+                      rounded
+                      text-stone-700
+                      disabled:text-stone-50" disabled>Add Recipient</button>
+      </div>
+    </div>
+    <div id="personInfo" class="flex flex-col hidden">
+      <h1 id="personName" class="text-red-700 font-extralight text-4xl">Name</h1>
+      <div class="flex flex-row gap-1 text-stone-700">
+        <h2 id="budget" class="text-xl py-2">Budget: $<span id="budgetData">0</span></h2>
+        <button type="button" id="editBudgetBtn">
+          <!--SVG icon from https://heroicons.com/-->
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+          </svg>
+        </button>
+        <form class="hidden" id="updateBudgetForm" hx-put="/person" hx-target="#budgetData">
+          <input type="text" name="id" id="id" class="hidden">
+          <input type="number" name="budget" id="budgetInput" class="p-2 bg-stone-50 rounded">
+          <button type="submit" id="submitBudgetBtn" class="p-2 bg-stone-200 rounded">Update</button>
+        </form>
+      </div>
+      <h2 id="spent" class="text-xl">Spent: $<span id="spentData">0</span></h2>
+      <div class="flex
+                  flex-row
+                  mt-4
+                  bg-red-600
+                  p-2
+                  rounded-t-lg
+                  text-white">
+        <h2 class="font-bold">Gifts Purchased</h2>
+      </div>
+      <div id="giftsPurchased"
+           class="flex
+                  flex-col
+                  mb-4
+                  bg-red-500
+                  rounded-b-lg
+                  p-2
+                  gap-2
+                  text-white">
+      </div>
+      <div class="flex
+                  flex-row
+                  mt-4
+                  bg-emerald-600
+                  p-2
+                  rounded-t-lg
+                  text-white">
+        <h2 class="font-bold">Gift Ideas</h2>
+      </div>
+      <div id="giftIdeas"
+           class="flex
+                  flex-col
+                  mb-4
+                  bg-emerald-500
+                  rounded-b-lg
+                  p-2
+                  gap-2
+                  text-white">
+      </div>
+      <div class="flex
+                  flex-row
+                  mt-4
+                  bg-stone-500
+                  p-2
+                  rounded-t-lg
+                  text-white">
+        <h2 class="font-bold">Add Gift</h2>
+      </div>
+      <div class="flex
+                  flex-col
+                  mb-4
+                  bg-stone-400
+                  rounded-b-lg
+                  p-2
+                  gap-2
+                  text-white">
+        <input type="text"
+                name="itemName"
+                id="itemName"
+                class="p-2
+                      bg-stone-50
+                      text-stone-700
+                      rounded"
+                placeholder="Gift name">
+        <input type="number"
+                name="price"
+                id="price"
+                class="p-2
+                      bg-stone-50
+                      text-stone-700
+                      rounded"
+                placeholder="$">
+        <div class="flex flex-row gap-2">
+          <input type="checkbox"
+                name="purchased"
+                id="purchased"
+                class="p-2
+                      bg-stone-50
+                      text-2xl
+                      rounded"
+                placeholder="Price">
+          <label for="purchased">Purchased</label>
+        </div>
+        <button type="button"
+                id="addGift"
+                class="p-2
+                      bg-stone-200
+                      text-stone-700
+                      font-bold
+                      rounded">
+          Add
+        </button>
+      </div>
+    </div>
+  </div>
+  <script src="public/main.js"></script>
+</body>
+</html>
